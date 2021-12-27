@@ -7,11 +7,14 @@ This frontend challenge is a basic React app created with [Create React App](htt
 ## Description
 In this challenge you'll be cloning this repo (don't fork), and loading this app locally and then:
 1. Debug where necessary
-2. Optimize performance as best you can
-3. Refactor and restructure app
-4. Write tests
-5. Feature Add - Calculate and display runtime
-6. **BONUS** - Style the app
+2. Become familiar with the current behavior of the app (What is being generated?  What is being transformed?).
+3. Optimize performance as best you can
+4. Refactor and restructure app
+5. Write tests (Hint: Use this step to ensure you don't change the apps behavior)
+6. Feature Add - Calculate and display runtime
+7. **BONUS** - Style the app
+
+Please make sure your latest commit contains only your changes.
 
 See below for loading instructions.
 
