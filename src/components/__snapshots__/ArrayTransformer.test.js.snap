@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ArrayTransformer matches snapshot 1`] = `
+<div>
+  <div>
+    Transformations
+  </div>
+  <div>
+    <button
+      text="Scramble each element"
+    >
+      Scramble each element
+    </button>
+    <button
+      text="Swap case of each element"
+    >
+      Swap case of each element
+    </button>
+    <button
+      text="Add random character to each element"
+    >
+      Add random character to each element
+    </button>
+    <button
+      text="Remove elements with a capital B"
+    >
+      Remove elements with a capital B
+    </button>
+  </div>
+  <ol>
+    <div>
+      No filters selected
+    </div>
+  </ol>
+  <button>
+    Apply changes to array
+  </button>
+</div>
+`;

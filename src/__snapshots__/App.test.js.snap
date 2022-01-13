@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`App match snapshot 1`] = `
+<div>
+  <div>
+    <header>
+      The Pointless App
+    </header>
+    <p>
+      Generate a random string array. Then add as many transformations as you want. You can add duplicates of the same transformation. Transformations will happen in the order they are added.
+    </p>
+    <p>
+      Array not generated
+    </p>
+    <button>
+      Generate random array
+    </button>
+    <label
+      for="length"
+    >
+      of length:
+    </label>
+    <input
+      max="10000"
+      min="1"
+      name="length"
+      type="number"
+    />
+    <br />
+    <div>
+      Transformations
+    </div>
+    <div>
+      <button
+        text="Scramble each element"
+      >
+        Scramble each element
+      </button>
+      <button
+        text="Swap case of each element"
+      >
+        Swap case of each element
+      </button>
+      <button
+        text="Add random character to each element"
+      >
+        Add random character to each element
+      </button>
+      <button
+        text="Remove elements with a capital B"
+      >
+        Remove elements with a capital B
+      </button>
+    </div>
+    <ol>
+      <div>
+        No filters selected
+      </div>
+    </ol>
+    <button>
+      Apply changes to array
+    </button>
+    <br />
+    <div>
+      Output array length
+      : 
+      0
+    </div>
+    <div>
+      Runtime (ms)
+      : 
+      0
+    </div>
+  </div>
+</div>
+`;
