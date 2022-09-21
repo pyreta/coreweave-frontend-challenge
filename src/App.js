@@ -6,19 +6,21 @@ export const makeRandomString = (length) => {
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let charactersLength = characters.length;
   for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    result = `${result}${characters.charAt(Math.floor(Math.random() * charactersLength))}`;
   }
   return result;
 };
 
 export const swapCase = (letters) => {
   let newLetters = "";
-  for (let i = 0; i < letters.length; i++) {
-    if (letters[i] === letters[i].toLowerCase()) {
-      newLetters += letters[i].toUpperCase();
-    } else {
-      newLetters += letters[i].toLowerCase();
-    }
+  /*
+  * safer to use string interpolation over the += operator.
+  * If there are two numbers next to each other that operation might 
+  * do a math calculation instead of concatenating the strings
+  */
+  for(const letter of letters) {
+    const newCase = letter === letter.toUpperCase()? letter.toLowerCase() : letter.toUpperCase()
+    newLetters = `${newLetters}${newCase}`;
   }
   return newLetters;
 };
@@ -37,7 +39,7 @@ export const shuffle = (string) => {
 };
 
 const arrayChangingFunctions = {
-  "Scramble each element": { fn: shuffle, method: "map" },
+  "Scramble each element": { fn: shuffle, method: "_map_" },
   "Swap case of each element": { fn: swapCase, method: "map" },
   "Add random character to each element": {
     fn: (x) => `${x}${makeRandomString(1)}`,
@@ -49,30 +51,71 @@ const arrayChangingFunctions = {
   },
 };
 
+const operationErrors = new Map();
+
 const App = () => {
-  const [randomArray, setRandomArray] = useState();
+  const [randomArray, setRandomArray] = useState([]);
   const [outputArray, setOutputArray] = useState([]);
   const [changes, setChanges] = useState([]);
-  const [loading, setLoading] = useState();
+  const [isWorking, setIsWorking] = useState(false);
 
   const inputRef = useRef();
-  const firstEl = outputArray[0];
-  const len = outputArray.length;
+  const applyCurrentChanges = () => {
+    setOutputArray(changes.reduce((output, change) => {
+      const { method, fn } = arrayChangingFunctions[change];
+      if(typeof output[method] !== 'function') {
+        const existingOperation = operationErrors.has(change);
+        const errObj = {
+          count: existingOperation ? (operationErrors.get(change).count + 1): 1,
+          name: method,
+          changeType: change,
+          message: `Arrays do not contain the method \"${method}\" this operation was skipped`
+        };
 
-  useEffect(() => {
-    setLoading(false);
-  }, [firstEl, len]);
+        operationErrors.set(change, errObj);
+      } else {
+        output = output[method](fn);
+      }
 
-  useEffect(() => {
-    if (loading) {
-      let newArr = randomArray;
-      changes.forEach((change, i) => {
-        const { method, fn } = arrayChangingFunctions[change];
-        newArr = newArr[method](fn);
-      });
-      setOutputArray(newArr);
-    }
-  }, [loading, changes, randomArray]);
+      return output;
+    }, [...randomArray]));
+    setIsWorking(false);
+  }
+
+  const handleApplyChanges = () => {
+    if(randomArray.length < 1) {
+      alert('Please click \"Generate random array\" first');
+      return;
+    };
+
+    operationErrors.clear();
+    setIsWorking(true);
+    applyCurrentChanges();
+  }
+
+  const handleAddTransformation = (evt) => {
+    const {dataset: { modifier }} = evt.target;
+    setChanges((prev) => {
+      return [...prev, modifier]
+    });
+  }
+
+  const handleGenerateRandomArray = () => {
+    const currentValue = parseInt(inputRef.current.value, 10);
+    if(isNaN(currentValue) || currentValue > Number.MAX_SAFE_INTEGER || currentValue < 0) {
+      alert("Please enter a positive inteeger for the length of the array")
+      return
+    };
+    setOutputArray([]);
+    setRandomArray(Array.from({length: currentValue}, (vak) => makeRandomString(5)));
+  }
+
+  const handleRemoveChange = (evt) => {
+    const { dataset: {index}} = evt.target;
+    setChanges( changes.filter((_,idx) => {
+      return idx !== parseInt(index,10);
+    }));
+  }
 
   return (
     <div>
@@ -84,13 +127,7 @@ const App = () => {
       </p>
       {!randomArray.length && <p>Array not generated</p>}
       <button
-        onClick={() => {
-          setRandomArray(
-            new Array(parseInt(inputRef.current.value, 10))
-              .fill(null)
-              .map(() => makeRandomString(5))
-          );
-        }}
+        onClick={handleGenerateRandomArray}
       >
         Generate random array
       </button>
@@ -102,9 +139,8 @@ const App = () => {
         {Object.keys(arrayChangingFunctions).map((text) => (
           <button
             key={text}
-            onClick={() => {
-              setChanges([...changes, text]);
-            }}
+            data-modifier={text}
+            onClick={handleAddTransformation}
           >
             {text}
           </button>
@@ -112,28 +148,44 @@ const App = () => {
       </div>
       <div>
         <ol>
-          {changes.length ? (
+          {!changes.length && <div>No filters selected</div>}
+          {
             changes.map((change, idx) => (
-              <li key={`${change}${idx}`}>{change}</li>
+              <li className={operationErrors.has(change) ? 'error' : ''} key={`${change}${idx}`}>
+                {change} <button disabled={isWorking} data-index={idx} onClick={handleRemoveChange}>remove</button>
+              </li>
             ))
-          ) : (
-            <div>No filters selected</div>
-          )}
+          }
         </ol>
       </div>
       <button
-        disabled={loading}
-        onClick={() => {
-          setLoading(true);
-        }}
+        disabled={isWorking || !randomArray.length}
+        onClick={handleApplyChanges}
       >
-        {loading ? "Applying your changes..." : "Apply changes to array"}
+        {isWorking ? "Applying your changes..." : "Apply changes to array"}
       </button>
       <br></br>
-      <div>
-        Output array Length:
-        {outputArray.length}
-      </div>
+      {(outputArray.length > 0) && (
+        <div>
+          Output array Length:
+          {isWorking ? " ...Pending" :outputArray.length}
+        </div>
+      )}
+
+      {(!isWorking && operationErrors.size > 0) && (
+        <>
+          <hr />
+          <div>Errors during the operation</div>
+          {[...operationErrors.values()].map(operation => 
+            <div key={makeRandomString(5)} className="operation-error">
+              <div>Error Change type: {operation.changeType}</div>
+              <div>Error count: {operation.count}</div>
+              <div>Error Method: {operation.name}</div>
+              <div>Error Message: {operation.message}</div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };
