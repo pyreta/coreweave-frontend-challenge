@@ -1,4 +1,4 @@
-# CoreWeave Frontend Basic Challenge
+# Array filter functions
 
 This frontend challenge is a basic React app created with [Create React App](https://github.com/facebook/create-react-app).
 
